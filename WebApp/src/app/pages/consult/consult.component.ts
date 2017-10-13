@@ -112,6 +112,7 @@ export class ConsultComponent implements OnInit {
         this._consultService.fetchChosenStreams(themes, this.selectedCategories)
             .toPromise()
             .then(data => {
+                console.log(data)
                 this.chosenStreams = data
                 if (this.chosenStreams.length == 0){
                     this.fetchArticles(this.chosenStreams)
