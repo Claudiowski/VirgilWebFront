@@ -1,0 +1,22 @@
+<div id="mySidenav sidenav" [class]="navbarClass">   
+        <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
+
+        <p>Thèmes</p>
+        <div *ngFor="let t of themes">
+            <input type="checkbox" id="{{ t.name }}" (click)="addThemeToChosenList(t, $event.srcElement.checked); fetchCategoriesByTheme(t, $event.srcElement.checked)">
+            <label for="{{ t.name }}">{{ t.name }}</label>
+        </div>
+
+        <p>Catégories</p>
+        <div *ngFor="let c of categories">
+            <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(t, $event.srcElement.checked)" >
+            <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
+        </div>
+</div>
+      
+<!-- Use any element to open the sidenav -->
+<span (click)="openNav()">open</span>
+
+<div id="main">
+    <consult-article *ngFor="let a of articles" [article]="a"></consult-article>
+</div>a

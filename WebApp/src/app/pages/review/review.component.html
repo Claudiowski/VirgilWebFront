@@ -1,0 +1,11 @@
+<div *ngFor="let f of favorites">
+    <a href="{{ f.url }}">
+        <h3>{{ f.title }}</h3>
+    </a>
+    <div>
+        Description : {{ f.description }}
+    </div>
+    <div>
+        Date : {{ f.date_hour }}
+    </div>
+</div>

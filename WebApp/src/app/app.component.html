@@ -1,0 +1,19 @@
+<header *ngIf="_authService.logged">
+
+  <h1>Virgil</h1>
+
+  <a routerLink="/consult" routerLinkActive="active">
+          Consulter l'actu
+  </a>
+
+  <a routerLink="/manage" routerLinkActive="active">
+          Gérer ses flux
+  </a>
+
+  <a routerLink="/review" routerLinkActive="active">
+          Relire un article
+  </a>
+
+</header>
+
+<router-outlet></router-outlet>

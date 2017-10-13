@@ -1,0 +1,36 @@
+<h4>Supprimer des flux</h4>
+
+  <div *ngFor="let s of streams; let ind = index">
+
+    <div>{{ s.name }}</div>
+    <div>{{ s.name_theme }}</div>
+    <div>{{ s.name_category }}</div>
+    <div><button (click)="editStream(ind)">Éditer</button></div>         
+    <div><button (click)="deleteStream(s.id)">Supprimer</button></div>
+
+    <form *ngIf="editBool[ind] == true">
+        
+      <select placeholder="Thème" (change)="initCategsByTheme(selectStreamTheme.value)" #selectStreamTheme>
+        <option *ngFor="let t of themes" value="{{ t['id'] }}">
+          {{ t['name'] }}
+        </option>
+      </select>
+
+      <select placeholder="Catégorie" #selectStreamCateg>
+        <option *ngFor="let c of categories" value="{{ c['id'] }}">
+          {{ c['name'] }}
+        </option>
+      </select>
+
+      <input placeholder="Titre" type="text" #typeStreamTitle>
+
+      <input placeholder="Flux" type="text" #typeStreamUrl>
+
+      <button type="submit" name="action"
+        (click)="sendNewStream(typeStreamTitle.value, typeStreamUrl.value, selectStreamCateg.value)">Valider
+      </button>
+        
+        </form>
+
+  </div>
+

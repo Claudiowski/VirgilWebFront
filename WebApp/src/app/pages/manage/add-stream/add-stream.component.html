@@ -1,0 +1,52 @@
+<form>
+
+    <h4>Ajouter un flux</h4>
+
+    <select placeholder="Thème" (change)="initCategsByTheme(selectStreamTheme.value)" #selectStreamTheme>
+      <option *ngFor="let t of themes" value="{{ t['id'] }}">{{ t['name'] }}</option>
+    </select>
+
+    <select placeholder="Catégorie" #selectStreamCateg>
+      <option *ngFor="let c of categsByTheme" value="{{ c['id'] }}">
+        {{ c['name'] }}
+      </option>
+    </select>
+
+    <input placeholder="Titre" type="text" #typeStreamTitle>
+
+    <input placeholder="Flux" type="text" #typeStreamUrl>
+
+    <button type="submit" name="action"
+      (click)="sendNewStream(typeStreamTitle.value, typeStreamUrl.value, selectStreamCateg.value)">Valider
+    </button>
+
+</form>
+
+<form>
+
+    <h4>Ajouter un thème</h4>
+
+    <input placeholder="Thème" type="text" #typeNewTheme>
+
+    <button type="submit" name="action"
+            (click)="sendNewTheme(typeNewTheme.value)">Valider
+    </button>
+
+</form>
+
+<form>
+
+    <h4>Ajouter une catégorie</h4>
+
+    <input placeholder="Catégorie" type="text" #typeNewCateg>
+
+    <select placeholder="Thème"  #selectCategTheme>
+      <option *ngFor="let t of themes" value="{{ t['id'] }}">{{ t['name'] }}</option>
+    </select>
+
+    <button type="submit" name="action"
+            (click)="sendNewCateg(typeNewCateg.value, selectCategTheme.value)">Valider
+    </button>
+
+</form>
+      

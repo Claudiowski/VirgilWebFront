@@ -1,0 +1,19 @@
+<a href="{{ article.link }}">
+    <h4 class="header">{{ article.title }}</h4>
+</a>
+
+<button (click)="sendArticleToFavorites(article)">
+    <i>add</i>
+</button>
+
+<div>
+    <p>
+        {{ article.description }}
+    </p>
+    <div>
+        Source : {{ article.stream.name }}
+    </div>
+    <div>
+        Date : {{ article.pubDate }}
+    </div>
+</div>
