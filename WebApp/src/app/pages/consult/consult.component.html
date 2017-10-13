@@ -9,7 +9,7 @@
 
         <p>Catégories</p>
         <div *ngFor="let c of categories">
-            <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(t, $event.srcElement.checked)" >
+            <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(c, $event.srcElement.checked)" >
             <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
         </div>
 </div>

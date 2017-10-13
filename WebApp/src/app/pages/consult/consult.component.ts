@@ -109,19 +109,18 @@ export class ConsultComponent implements OnInit {
     closeNav() {
         let themes = this.getThemesToFetch()
         this.navbarClass = "closedNav"
-        this.chosenStreams = this.fetchChosenStreams(themes, this.selectedCategories)
-        if (this.chosenStreams.length == 0){
-            this.fetchArticles(this.chosenStreams)
-        } else {
-            this.fetchArticles(this.defaultStreams)            
-        }
+        this._consultService.fetchChosenStreams(themes, this.selectedCategories)
+            .toPromise()
+            .then(data => {
+                this.chosenStreams = data
+                if (this.chosenStreams.length == 0){
+                    this.fetchArticles(this.chosenStreams)
+                } else {
+                    this.fetchArticles(this.defaultStreams)            
+                }
+        })
     }
-
-    private fetchChosenStreams(themes, categories) {
-        // implement, you fool !
-        this._consultService.fetchChosenStreams(themes, categories)
-        return []
-    }
+    
 
     private getThemesToFetch() {
         const c = this.selectedCategories
@@ -129,10 +128,10 @@ export class ConsultComponent implements OnInit {
         let themes = []
         for (let i = 0; i < t.length; i++) {
             for (let j = 0; j < c.length; j++) {
-                if (t[i]['id'] == c[j['id']]) 
+                if (t[i]['id'] == c[j]['id_theme']) 
                     break
                 if (j+1 == c.length)
-                    themes.push(t)
+                    themes.push(t[i])
             }
         }
         return themes

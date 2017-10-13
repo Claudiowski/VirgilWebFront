@@ -85,6 +85,19 @@ export class ConsultService {
                             return response.json() })
     }
 
+    public fetchStreamsByThemes(id_themes: number[]) {
+        let token = sessionStorage.getItem('token')
+        let headers = new Headers()
+        let params = new URLSearchParams()
+        let url = 'http://localhost:8080/stream-by-theme-list'
+        headers.append('Authorization', token)
+        params.append('id_themes', ''+id_themes)
+        return this.http.post(url, params, new RequestOptions(headers))
+                        .toPromise()
+                        .then(response => { 
+                            return response.json() })
+    }
+
     public fetchStreamsByCategory(id_category : number) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
@@ -98,10 +111,43 @@ export class ConsultService {
                             return response.json() })
     }
 
-    public fetchChosenStreams(theme_list : Object[], cat_list : Object[]) {
-        let url = 'http://localhost:8080/stream-by-category'
-        //this.http.get
+    public fetchStreamsByCategories(id_categories : number[]) {
+        let token = sessionStorage.getItem('token')
+        let headers = new Headers()
+        let params = new URLSearchParams()
+        let url = 'http://localhost:8080/stream-by-category-list'
+        headers.append('Authorization', token)
+        params.append('id_categories', ''+id_categories)
+        return this.http.post(url, params, new RequestOptions(headers))
+                        .toPromise()
+                        .then(response => { 
+                            return response.json() })
     }
+
+    public fetchChosenStreams(theme_list : Object[], cat_list : Object[]) : Observable<any> {
+        let id_themes = []
+        let id_categories = []
+        for (let i = 0; i < theme_list.length; i++) 
+            id_themes.push(theme_list[i]['id'])
+        for (let i = 0; i < cat_list.length; i++)
+            id_categories.push(cat_list[i]['id'])
+        console.log(id_categories)
+        console.log(id_themes)
+        return new Observable(observer => {
+            let is_filled = false
+            if (id_categories != [])  {
+                this.fetchStreamsByCategories(id_categories)
+                    .then(data => { observer.next(data.json()); is_filled = true; })
+            }
+            if (id_themes != []) {
+                this.fetchStreamsByThemes(id_themes)
+                    .then(data => { observer.next(data.json()); is_filled = true; })
+            }
+            if (!is_filled) observer.next([])
+            observer.complete()
+        })
+    }
+        
 
     private getFeedContent(url : string): Promise<Object[]> {
         return this.http.get(this.rssToJsonServiceBaseUrl + url)
