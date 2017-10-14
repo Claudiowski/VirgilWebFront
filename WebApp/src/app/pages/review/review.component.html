@@ -1,3 +1,21 @@
+<div id="mySidenav sidenav" [class]="navbarClass">   
+    <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
+
+    <p>Thèmes</p>
+    <div *ngFor="let t of themes">
+        <input type="checkbox" id="{{ t.name }}" (click)="addThemeToChosenList(t, $event.srcElement.checked); fetchCategoriesByTheme(t, $event.srcElement.checked)">
+        <label for="{{ t.name }}">{{ t.name }}</label>
+    </div>
+
+    <p>Catégories</p>
+    <div *ngFor="let c of categories">
+        <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(c, $event.srcElement.checked)" >
+        <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
+    </div>
+</div>
+
+<span (click)="openNav()">open</span>
+
 <div *ngFor="let f of favorites">
     <a href="{{ f.url }}">
         <h3>{{ f.title }}</h3>
