@@ -137,20 +137,25 @@ export class ConsultService {
             id_categories.push(cat_list[i]['id'])
 
         return new Observable(observer => {
-            let is_filled = false
-            if (id_categories.length > 0)  {
+            if (id_categories.length > 0 && id_themes.length > 0) {
                 this.fetchStreamsByCategories(id_categories)
-                    .then(data => { observer.next(data); is_filled = true; })
-            }
-            if (id_themes.length > 0) {
+                    .then(data => {
+                        observer.next(data)
+                        this.fetchStreamsByThemes(id_themes)
+                            .then(data => {
+                                observer.next(data)
+                                observer.complete()
+                            })   
+                })
+            } else if (id_categories.length > 0 && id_themes.length == 0) {
+                this.fetchStreamsByCategories(id_categories)
+                    .then(data => { observer.next(data); observer.complete() } )
+            } else if (id_themes.length > 0 && id_categories.length == 0) {
                 this.fetchStreamsByThemes(id_themes)
-                    .then(data => { observer.next(data); is_filled = true; })
+                    .then(data => { observer.next(data); observer.complete() } )
             }
-            if (!is_filled) observer.next([])
-            observer.complete()
         })
-    }
-        
+    }     
 
     private getFeedContent(url : string): Promise<Object[]> {
         return this.http.get(this.rssToJsonServiceBaseUrl + url)
