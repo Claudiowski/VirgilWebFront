@@ -6,28 +6,18 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class LoginService {
 
-    private url : string
-
-    constructor(private http: Http) { 
-        this.url = 'http://localhost:8080/auth/token'
-    }
+    constructor(private http: Http) { }
 
     public fetchToken(pseudo : string, passwd : string){
-        let params = new URLSearchParams()
-        params.append('pseudo', pseudo)
-        params.append('password', passwd)
-        return this.http.post(this.url, params)
+        let url = 'http://localhost:8080/api/token'
+        let headers = new Headers()        
+        headers.append('Credentials', pseudo + ':' + passwd)
+        return this.http.get(url, { headers: headers })
                 .toPromise()
                 .then(response => { 
                     let token = response.text()
                     token = token.substr(1, token.length)
                     return token.substr(0, token.length-2)
                  })
-    }
-
-    private formatHeaders() {
-        let headers = new Headers()
-        headers.append('Content-Type', 'application/json')
-        return headers
     }
 }

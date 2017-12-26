@@ -22,7 +22,7 @@ export class RemoveStreamComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._removeStreamService.fetchAllStreams()
+    this._removeStreamService.fetchStreamsByReader()
             .then(data => {
               this.streams = data
               for (let i = 0; i < this.streams.length; i++)
@@ -34,11 +34,11 @@ export class RemoveStreamComponent implements OnInit {
 
   private deleteStream(stream_id : number) {
     this._removeStreamService.removeStream(stream_id)
-                             .then(data => this.fetchAllStreams())
+                             .then(data => this.fetchStreamsByReader())
   }
 
-  private fetchAllStreams() {
-    this._removeStreamService.fetchAllStreams()
+  private fetchStreamsByReader() {
+    this._removeStreamService.fetchStreamsByReader()
               .then(data => this.streams = data)
   }
 

@@ -8,7 +8,7 @@ import { ReviewComponent }      from './pages/review/review.component';
 import { PageNotFoundComponent }      from './pages/page-not-found/page-not-found.component';
 
 import { CanActivateViaAuthGuard } from './authentication/activation';
-import { LoginComponent }       from './authentication/login/login.component';
+import { LoginComponent }          from './authentication/login/login.component';
 
 const routes: Routes = [ 
   { path: '',           redirectTo: '/consult',        pathMatch: 'full' },
@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'manage',     component: ManageComponent,    canActivate:  [CanActivateViaAuthGuard] },
   { path: 'review',     component: ReviewComponent,    canActivate:  [CanActivateViaAuthGuard] },
   { path: 'login',      component: LoginComponent },
-  { path: '**',         component: PageNotFoundComponent, canActivate:  [CanActivateViaAuthGuard]},
+  { path: '**',         component: PageNotFoundComponent , canActivate:  [CanActivateViaAuthGuard] },
 ];
 
 @NgModule({

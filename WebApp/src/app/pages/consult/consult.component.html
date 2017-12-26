@@ -3,13 +3,13 @@
 
         <p>Thèmes</p>
         <div *ngFor="let t of themes">
-            <input type="checkbox" id="{{ t.name }}" (click)="addThemeToChosenList(t, $event.srcElement.checked); fetchCategoriesByTheme(t, $event.srcElement.checked)">
+            <input type="checkbox" id="{{ t.name }}" (click)="click_addThemeToChosenList(t, $event.srcElement.checked); click_fetchCategoriesByTheme(t, $event.srcElement.checked)">
             <label for="{{ t.name }}">{{ t.name }}</label>
         </div>
 
         <p>Catégories</p>
         <div *ngFor="let c of categories">
-            <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(c, $event.srcElement.checked)" >
+            <input type="checkbox" id="{{ c.name }}" (click)="click_addCategoryToChosenList(c, $event.srcElement.checked)" >
             <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
         </div>
 </div>
@@ -19,4 +19,5 @@
 
 <div id="main">
     <consult-article *ngFor="let a of articles" [article]="a"></consult-article>
-</div>a
+    <span *ngIf="errorMessage">{{ errorMessage }}</span>
+</div>

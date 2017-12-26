@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Http, URLSearchParams, RequestOptions } from '@angular/http'
+import { Headers, Http, RequestOptions } from '@angular/http'
 
 import * as jwt_decode from 'jwt-decode';
 
@@ -22,41 +22,44 @@ export class ConsultService {
         let token = sessionStorage.getItem('token')
         let id_reader = jwt_decode(token)['id']
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/theme-by-reader'
+        let url = 'http://localhost:8080/api/reader/' + id_reader + '/themes'
         headers.append('Authorization', token)
-        params.append('id_reader', id_reader)
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.get(url, new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                            if (response.status == 200)
+                                return response.json()
+                            else
+                                return null })
     }
 
     public fetchStreamsByReader() {
         let token = sessionStorage.getItem('token')
         let id_reader = jwt_decode(token)['id']
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/complete-stream-by-reader'
+        let url = 'http://localhost:8080/api/reader/' + id_reader + '/streams'
         headers.append('Authorization', token)
-        params.append('id_reader', id_reader)
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.get(url, new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                            if (response.status == 200)
+                                return response.json()
+                            else
+                                return null })
     }
 
     public fetchCategoriesByTheme(id_theme : string) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/category-by-theme-id'
+        let url = 'http://localhost:8080/api/theme/' + id_theme + '/categories'
         headers.append('Authorization', token)
-        params.append('id_theme', id_theme)
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.get(url, new RequestOptions({headers: headers}))
                         .toPromise()
-                        .then(response => { 
-                            return response.json() })
+                        .then(response => {                             
+                        if (response.status == 200)
+                            return response.json()
+                        else
+                            return null })
     }
 
     public fetchAndSortArticles(streams : Object[]) : Observable<Object[]> {
@@ -75,55 +78,69 @@ export class ConsultService {
     public fetchStreamsByTheme(id_theme: number) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/stream-by-theme-id'
+        let url = 'http://localhost:8080/api/theme/' + id_theme + '/streams'
         headers.append('Authorization', token)
-        params.append('id_theme', ''+id_theme)
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.get(url,  new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                        if (response.status == 200)
+                            return response.json()
+                        else
+                            return null })
     }
 
     public fetchStreamsByThemes(id_themes: number[]) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
         let params = {}
-        let url = 'http://localhost:8080/stream-by-theme-list'
+        let url = 'http://localhost:8080/api/streams?_themes='
+        for (let i = 0; i < id_themes.length; i++)
+            url += id_themes[i] + ','
+        url = url.substring(0,url.length-1)
+        console.log(url)
         headers.append('Authorization', token)
         headers.append('Content-Type', 'application/json')        
         params = { 'id_themes': id_themes }
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.post(url, new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                        if (response.status == 200)
+                            return response.json()
+                        else
+                            return null })
     }
 
     public fetchStreamsByCategory(id_category : number) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/stream-by-category'
+        let url = 'http://localhost:8080/api/category' + id_category + '/streams'
         headers.append('Authorization', token)
-        params.append('id_category', ''+id_category)
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.post(url, new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                        if (response.status == 200)
+                            return response.json()
+                        else
+                            return null }) 
     }
 
     public fetchStreamsByCategories(id_categories : number[]) {
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = {}
-        let url = 'http://localhost:8080/stream-by-category-list'
+        let url = 'http://localhost:8080/streams?_categories='
+        for (let i = 0; i < id_categories.length; i++)
+            url += id_categories[i] + ','
+        url = url.substring(0,url.length-1)
+        console.log(url)
         headers.append('Authorization', token)
         headers.append('Content-Type', 'application/json')
-        params = { 'id_categories': id_categories }
-        return this.http.post(url, params, new RequestOptions(headers))
+        return this.http.post(url, new RequestOptions({headers: headers}))
                         .toPromise()
                         .then(response => { 
-                            return response.json() })
+                        if (response.status == 200)
+                            return response.json()
+                        else
+                            return null })
     }
 
     public fetchChosenStreams(theme_list : Object[], cat_list : Object[]) : Observable<any> {

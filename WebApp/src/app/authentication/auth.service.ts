@@ -11,7 +11,7 @@ export class AuthService {
     constructor(private http: Http,
                 private router: Router) {
         this.logged = false
-        this.url    = "http://localhost:8080/auth/verification"
+        this.url    = "http://localhost:8080/api/authentication"
     }
 
     isLoggedIn() {
@@ -22,7 +22,7 @@ export class AuthService {
         }
         token = sessionStorage.getItem('token')
         let headers = new Headers()
-        headers.append('Authorization', token)
+        headers.append('Token', token)
         return this.http.get(this.url, { headers: headers } )
                   .toPromise()
                   .then(response => {

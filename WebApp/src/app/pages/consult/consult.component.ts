@@ -23,27 +23,38 @@ export class ConsultComponent implements OnInit {
     selectedThemes : Object[] = []
     selectedCategories : Object[] = []
 
+    errorMessage : String
+
     constructor( private _consultService : ConsultService,
                  private route: ActivatedRoute,
-                 private router : Router ) {
-    }
+                 private router : Router ) { }
     
     ngOnInit() {
-        this.fetchAllStreams().then(data => this.fetchArticles(data))
+        this.fetchAllStreams().then(data => { this.fetchArticles(data) },
+                                    error => console.log(error))
         this.fetchThemes()
     }
 
     private fetchAllStreams() {
         return this._consultService.fetchStreamsByReader()
-                .then(data => this.defaultStreams = data )
+                .then(data => {
+                        if (data == null)
+                            this.errorMessage = "Aucun article trouvé !"
+                        else
+                            this.defaultStreams = data
+                        return data
+                })
     }
 
     private fetchThemes() {
         this._consultService.fetchThemesByReader()
-                .then(data => this.themes = data )
+                .then(data => this.themes = data,
+                     error => this.themes = null )
     }
 
     private fetchArticles(streams : Object[]) {
+        if (streams == null)
+            return
         let articles = []
         let stream_index = 0
         this._consultService.fetchAndSortArticles(streams)
@@ -54,14 +65,15 @@ export class ConsultComponent implements OnInit {
                            articles = articles.concat(data)
                            stream_index++
                        },
-                       error => console.log('error'),
-                       () => { this.articles = articles.sort(this.sortByPubDate); console.log(this.articles)} )
+                       error => { },
+                       () => { this.articles = articles.sort(this.sortByPubDate) } )
     }
 
-    private fetchCategoriesByTheme(theme : Object, checkbox_state : boolean) {
+    private click_fetchCategoriesByTheme(theme : Object, checkbox_state : boolean) {
         if (checkbox_state == true) {
             this._consultService.fetchCategoriesByTheme(theme['id'])
-                .then(data => this.categories = this.categories.concat(data) ) 
+                .then(data => { this.categories = this.categories.concat(data);
+            console.log(this.categories) }) 
         } else {
             this.removeCategoriesByTheme(theme)
         }
@@ -89,10 +101,11 @@ export class ConsultComponent implements OnInit {
         }
     }
 
-    private addThemeToChosenList(theme, box_checked)  {
+    private click_addThemeToChosenList(theme, box_checked)  {
         let index = 0
         if (box_checked) {
             this.selectedThemes.push(theme)
+            console.log(this.selectedThemes)
         } else {
             let index = this.selectedThemes.indexOf(theme)
             this.selectedThemes.splice(index, 1)
@@ -101,7 +114,7 @@ export class ConsultComponent implements OnInit {
         }
     }
 
-    private addCategoryToChosenList(category, box_checked) {
+    private click_addCategoryToChosenList(category, box_checked) {
         if (box_checked) {
             this.selectedCategories.push(category)
         } else {

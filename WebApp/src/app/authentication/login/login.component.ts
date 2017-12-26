@@ -19,6 +19,7 @@ export class LoginComponent {
       this._loginService.fetchToken(this.pseudo, this.password)
                         .then(data => { 
                             sessionStorage.setItem('token', data)
+                            console.log(data)
                             this.router.navigateByUrl('') })
     }
 

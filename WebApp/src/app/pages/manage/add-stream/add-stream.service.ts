@@ -1,5 +1,5 @@
 import { Component, OnInit, Injectable } from '@angular/core'
-import { Http, URLSearchParams, RequestOptions } from '@angular/http'
+import { Headers, Http, RequestOptions } from '@angular/http'
 
 import * as jwt_decode from 'jwt-decode';
 
@@ -12,11 +12,8 @@ export class AddStreamService {
         let token = sessionStorage.getItem('token')
         let id_reader = jwt_decode(token)['id']
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/theme-by-reader'
-        headers.append('Authorization', token)
-        params.append('id_reader', id_reader)
-        return this.http.post(url, params, new RequestOptions(headers))
+        let url = 'http://localhost:8080/api/reader/' + id_reader + '/themes'
+        return this.http.get(url, new RequestOptions({ headers: headers }))
                         .toPromise()
                         .then(response => { 
                             return response.json() })
@@ -24,53 +21,43 @@ export class AddStreamService {
 
     public fetchCategories(id_theme : number) : Promise<Object[]> {
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/category-by-theme-id'
-        headers.append('Authorization', sessionStorage.getItem('token'))
-        params.append('id_theme', ''+id_theme)
-        return this.http.post(url, params, new RequestOptions(headers))
+        let url = 'http://localhost:8080/api/theme/' + id_theme + '/categories'
+        return this.http.get(url, new RequestOptions({ headers: headers }))
                 .toPromise()
                 .then(response => { return response.json() })
     }
 
-    public sendNewTheme(theme : string) {
+    public sendNewTheme(name : string) {
         alert("fdp")
         let token = sessionStorage.getItem('token')
         let id_reader = jwt_decode(token)['id']
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/themes'
+        let params = {"name": name, "id_reader": id_reader }
+        let url = 'http://localhost:8080/api/themes'
         headers.append('Authorization', token)
-        params.append('name', theme)
-        params.append('id_reader', id_reader)
-        this.http.post(url, params, new RequestOptions(headers))
+        this.http.post(url, params, new RequestOptions({ headers: headers }))
                  .toPromise()
                  .then(response => { return response.json() })
     }
 
-    public sendNewCateg(categ : string, id_theme : number){
+    public sendNewCateg(name : string, id_theme : number){
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/categories'
-        headers.append('Authorization', token)  
-        params.append('name', categ)
-        params.append('id_theme', ''+id_theme)
-        this.http.post(url, params, new RequestOptions(headers))
+        let url = 'http://localhost:8080/api/categories'
+        headers.append('Authorization', token)
+        let params = {"name": name, "id_theme": id_theme }        
+        this.http.post(url, params, new RequestOptions({ headers: headers }))
                  .toPromise()
                  .then(response => { return response.json() })
     }
 
-    public sendNewStream(stream : string, stream_url : string, id_categ : number){
+    public sendNewStream(name : string, str_url : string, id_categ : number){
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
-        let url = 'http://localhost:8080/streams'
+        let url = 'http://localhost:8080/api/streams'
         headers.append('Authorization', token)  
-        params.append('name', stream)
-        params.append('url', stream_url)
-        params.append('id_category', ''+id_categ)
-        this.http.post(url, params, new RequestOptions(headers))
+        let params = {"name": name, "url": str_url, "id_category": id_categ }                
+        this.http.post(url, params, new RequestOptions({ headers: headers }))
                  .toPromise()
                  .then(response => { return response.json() })
     }

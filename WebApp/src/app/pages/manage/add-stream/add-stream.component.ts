@@ -24,7 +24,6 @@ export class AddStreamComponent implements OnInit {
     }
 
     private initCategsByTheme(id_theme : number) {
-        //console.log(id_theme)
         this._addStreamService.fetchCategories(id_theme)
                 .then(data => this.categsByTheme = data)
     }

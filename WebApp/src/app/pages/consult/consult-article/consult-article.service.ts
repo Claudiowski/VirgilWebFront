@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Http, RequestOptions, URLSearchParams } from '@angular/http'
+import { Headers, Http, RequestOptions } from '@angular/http'
 
 import {Observable} from 'rxjs/Rx';
 
@@ -14,18 +14,17 @@ export class ConsultArticleService {
         console.log(article)
         let token = sessionStorage.getItem('token')
         let headers = new Headers()
-        let params = new URLSearchParams()
+        let params = {}
         let url = 'http://localhost:8080/favorites'
         headers.append('Authorization', token)
-        params.append('url', ''+article['link'])
-        params.append('annotation', '')
-        params.append('id_stream', article['stream']['id'])
-        params.append('title', ''+article['title'])
-        params.append('description', ''+article['description'])
-        params.append('date_hour', ''+article['pubDate'])
-        this.http.post(url, params, new RequestOptions(headers))
+        params['url'] = '' + article['link']
+        params['annotation'] = ''
+        params['id_stream'] = article['stream']['id']
+        params['title'] = '' + article['title']
+        params['description'] = '' + article['description']
+        params['publication_date'], '' + article['pubDate']
+        this.http.post(url, params, new RequestOptions({ headers: headers }))
                  .toPromise()
-                 .then(response => { return response.json() },
-                       error => console.log('fdp'))
+                 .then(response => { return response.json() } )
     }
 }
