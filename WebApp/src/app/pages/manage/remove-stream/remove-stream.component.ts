@@ -11,6 +11,7 @@ export class RemoveStreamComponent implements OnInit {
 
   private streams : Object[]
   private editBool : boolean[]
+  private editBool2 : boolean[]
   private indexActivatedEdit : number
 
   private themes : Object[]
@@ -28,8 +29,15 @@ export class RemoveStreamComponent implements OnInit {
               for (let i = 0; i < this.streams.length; i++)
                 this.editBool[i] = false
             })
+    this.fetchThemes()
+  }
+
+  private fetchThemes() {
     this._removeStreamService.fetchThemes()
-            .then(data => this.themes = data)
+        .then(data => { 
+          this.themes = data
+          for (let i = 0; i < this.streams.length; i++)
+            this.editBool2[i] = false })
   }
 
   private deleteStream(stream_id : number) {
@@ -37,14 +45,13 @@ export class RemoveStreamComponent implements OnInit {
                              .then(data => this.fetchStreamsByReader())
   }
 
+  private deleteTheme(theme_id : number) {
+    this._removeStreamService.removeTheme(theme_id)
+                             .then(data => this.fetchThemes())
+  }
   private fetchStreamsByReader() {
     this._removeStreamService.fetchStreamsByReader()
               .then(data => this.streams = data)
-  }
-
-  private initCategsByTheme(id_theme : number) {
-    this._removeStreamService.fetchCategories(id_theme)
-            .then(data => this.categories = data)
   }
 
   private editStream(new_index : number) {

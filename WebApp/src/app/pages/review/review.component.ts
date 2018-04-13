@@ -9,26 +9,32 @@ import { ReviewService } from './review.service'
 })
 export class ReviewComponent implements OnInit {
 
-    categories : Object[] = []
-    themes : Object[] = []
-
     navbarClass : string = "closedNav" 
 
-    selectedThemes : Object[] = []
-    selectedCategories : Object[] = []
-
-    private favorites : Object[] = []
+    currentFavorites : Object[] = []
+    currentThemes : Object[] = []
     
     constructor(private _reviewService : ReviewService) { }
 
     ngOnInit() { 
         this.fetchFavorites()
-        this.fetchThemes()        
+        this._reviewService.fetchAllThemes().then(themes => this.currentThemes = themes )
+        this.checkablesThemesAndCats()      
+    }
+
+    checkablesThemesAndCats() {
+        for (let i = 0; i < this.currentThemes.length; i++){
+            this.currentThemes[i]['is_checked'] = false
+
+            for (let j = 0; j < this.currentThemes[i]['categories'].length; j++){
+                this.currentThemes[i]['categories'][j]['is_checked'] = false
+            }
+        }
     }
 
     private fetchFavorites() {
-        this._reviewService.fetchFavorites()
-                .then(data => this.favorites = data )
+        this._reviewService.fetchAllFavorites()
+                .then(data => this.currentFavorites = data.sort(this.sortByPubDate) )
     }
 
     openNav() {    
@@ -36,95 +42,73 @@ export class ReviewComponent implements OnInit {
     }
 
     private fetchThemes() {
-        this._reviewService.fetchThemesByReader()
-                .then(data => this.themes = data )
+        this._reviewService.fetchAllThemes()
+                .then(data => this.currentThemes = data )
     }
 
-    private fetchCategoriesByTheme(theme : Object, checkbox_state : boolean) {
-        if (checkbox_state == true) {
-            this._reviewService.fetchCategoriesByTheme(theme['id'])
-                .then(data => this.categories = this.categories.concat(data) ) 
-        } else {
-            this.removeCategoriesByTheme(theme)
-        }
-    }
 
-    private removeCategoriesByTheme(theme) {
-        let c = this.categories
-        let index = 0        
-        for (let i = 0; i < c.length; i++) {
-            if (c[i]['id_theme'] == theme['id']) {
-                index = c.indexOf(c[i])
-                c.splice(index, 1)
-            }
-        }
-    }
-
-    private removeSelectedCategoriesByTheme(theme) {
-        let sc = this.selectedCategories
-        let index = 0   
-        for (let i = 0; i < sc.length; i++) {
-            if (sc[i]['id_theme'] == theme['id']) {
-                index = sc.indexOf(sc[i])
-                sc.splice(index, 1)
-            }
-        }
-    }
-
-    private addThemeToChosenList(theme, box_checked)  {
-        let index = 0
-        if (box_checked) {
-            this.selectedThemes.push(theme)
-        } else {
-            let index = this.selectedThemes.indexOf(theme)
-            this.selectedThemes.splice(index, 1)
-            this.removeCategoriesByTheme(theme)
-            this.removeSelectedCategoriesByTheme(theme)           
-        }
-    }
-
-    private addCategoryToChosenList(category, box_checked) {
-        if (box_checked) {
-            this.selectedCategories.push(category)
-        } else {
-            let index = this.selectedCategories.indexOf(category)
-            this.selectedCategories.splice(index, 1)
-        }
+    checkEntity(entity : Object) {
+        entity['is_checked'] = !entity['is_checked']
     }
 
     closeNav() {
         this.navbarClass = "closedNav"
-        this.favorites = []
-        if (this.selectedCategories.length == 0 && this.selectedThemes.length == 0) {
-            this.fetchFavorites()
+        let localFavorites = []
+        let selectedThemesAndCats = this.getSelectedThemesAndCats()
+
+        if (selectedThemesAndCats[0].length > 0 && selectedThemesAndCats[1].length > 0) {
+            this._reviewService.fetchFavoritesByThemesAndCats(selectedThemesAndCats[0], selectedThemesAndCats[1])
+                                .subscribe(
+                                    favorites => 
+                                    {
+                                        if (favorites)
+                                            localFavorites.concat(favorites) 
+                                    },
+                                    error =>
+                                    {
+
+                                    },
+                                    () =>
+                                    {
+                                        this.currentFavorites = this.tryGetCurrentFavorites(localFavorites)                                       
+                                    }
+                                )
+        } else if (selectedThemesAndCats[0].length > 0) {
+            this._reviewService.fetchFavoritesByThemes(selectedThemesAndCats[0])
+                                .then(favorites => this.currentFavorites = this.tryGetCurrentFavorites(favorites)  )   
+        } else if (selectedThemesAndCats[1].length > 0) {
+            this._reviewService.fetchFavoritesByCategories(selectedThemesAndCats[1])
+                                .then(favorites => this.currentFavorites = this.tryGetCurrentFavorites(favorites) )            
         } else {
-            let themes = this.getThemesToFetch()
-            this._reviewService.fetchChosenFavorites(themes, this.selectedCategories)
-                .subscribe(data => {
-                    this._reviewService.fetchChosenFavorites(themes, this.selectedCategories)
-                        .subscribe(data => {
-                            this.favorites= this.favorites.concat(data)
-                    })
-                }
-            )
+            this.fetchFavorites()
         }
     }
 
-    private getThemesToFetch() {
-        const c = this.selectedCategories
-        const t = this.selectedThemes
-        let themes = []        
-        if (c.length == 0) {
-            return t
-        }
-        for (let i = 0; i < t.length; i++) {
-            for (let j = 0; j < c.length; j++) {
-                if (t[i]['id'] == c[j]['id_theme']) 
-                    break
-                if (j+1 == c.length)
-                    themes.push(t[i])
+    tryGetCurrentFavorites(favorites) {
+        return favorites != null ? favorites.sort(this.sortByPubDate) : null  
+    }
+
+    getSelectedThemesAndCats() {
+        let selectedThemes = []
+        let selectedCategories = []
+
+        for (let i = 0; i < this.currentThemes.length; i++) {
+            let themeIsAddable = true            
+            let theme = this.currentThemes[i]
+
+            for (let j = 0; j < theme['categories'].length; j++) {
+                if (theme['categories'][j]['is_checked']) {
+                    selectedCategories.push(theme['categories'][j]['id'])
+                    themeIsAddable = false
+                }
             }
+            if (themeIsAddable && theme['is_checked'])
+                selectedThemes.push(theme['id'])        
         }
-        return themes
+        return [selectedThemes, selectedCategories]
+    }
+
+    private sortByPubDate(a : Object[], b : Object[]) : number {
+        return new Date(b['publication_date']).getTime() - new Date(a['publication_date']).getTime()
     }
 }

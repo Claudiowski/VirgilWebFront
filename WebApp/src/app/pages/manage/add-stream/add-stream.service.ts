@@ -8,57 +8,48 @@ export class AddStreamService {
 
     constructor(private http : Http) { }
 
-    public fetchThemes() {
-        let token = sessionStorage.getItem('token')
-        let id_reader = jwt_decode(token)['id']
-        let headers = new Headers()
-        let url = 'http://localhost:8080/api/reader/' + id_reader + '/themes'
-        return this.http.get(url, new RequestOptions({ headers: headers }))
-                        .toPromise()
-                        .then(response => { 
-                            return response.json() })
+    private getIdReader() {
+        return jwt_decode(sessionStorage.getItem('token'))['id']
     }
 
-    public fetchCategories(id_theme : number) : Promise<Object[]> {
+    private getToken() {
+        return sessionStorage.getItem('token')
+    }
+
+    private httpGetMethod(url : string) {
         let headers = new Headers()
-        let url = 'http://localhost:8080/api/theme/' + id_theme + '/categories'
+        headers.append('Authorization', this.getToken())
         return this.http.get(url, new RequestOptions({ headers: headers }))
-                .toPromise()
-                .then(response => { return response.json() })
+                        .toPromise().then(response => { return response.json() })    
+    }
+
+    private httpPostMethod(url : string, params : Object) {
+        let headers = new Headers()
+        headers.append('Authorization', this.getToken())
+        return this.http.post(url, params, new RequestOptions({ headers: headers }))
+                        .toPromise().then(response => { return response.json() })    
+    }
+
+    public fetchThemes() {
+        let url = 'http://localhost:8080/api/reader/' + this.getIdReader() + '/themes'
+        return this.httpGetMethod(url)
     }
 
     public sendNewTheme(name : string) {
-        alert("fdp")
-        let token = sessionStorage.getItem('token')
-        let id_reader = jwt_decode(token)['id']
-        let headers = new Headers()
-        let params = {"name": name, "id_reader": id_reader }
+        let params = {"name": name, "id_reader": this.getIdReader() }
         let url = 'http://localhost:8080/api/themes'
-        headers.append('Authorization', token)
-        this.http.post(url, params, new RequestOptions({ headers: headers }))
-                 .toPromise()
-                 .then(response => { return response.json() })
+        this.httpPostMethod(url, params)
     }
 
     public sendNewCateg(name : string, id_theme : number){
-        let token = sessionStorage.getItem('token')
-        let headers = new Headers()
         let url = 'http://localhost:8080/api/categories'
-        headers.append('Authorization', token)
         let params = {"name": name, "id_theme": id_theme }        
-        this.http.post(url, params, new RequestOptions({ headers: headers }))
-                 .toPromise()
-                 .then(response => { return response.json() })
+        this.httpPostMethod(url, params)
     }
 
     public sendNewStream(name : string, str_url : string, id_categ : number){
-        let token = sessionStorage.getItem('token')
-        let headers = new Headers()
         let url = 'http://localhost:8080/api/streams'
-        headers.append('Authorization', token)  
         let params = {"name": name, "url": str_url, "id_category": id_categ }                
-        this.http.post(url, params, new RequestOptions({ headers: headers }))
-                 .toPromise()
-                 .then(response => { return response.json() })
+        this.httpPostMethod(url, params)        
     }
 }

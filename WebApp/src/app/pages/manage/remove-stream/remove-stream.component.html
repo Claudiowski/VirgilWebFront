@@ -8,7 +8,7 @@
     <div><button (click)="editStream(ind)">Éditer</button></div>         
     <div><button (click)="deleteStream(s.id)">Supprimer</button></div>
 
-    <form *ngIf="editBool[ind] == true">
+    <form *ngIf="editBool[ind]">
         
       <select placeholder="Thème" (change)="initCategsByTheme(selectStreamTheme.value)" #selectStreamTheme>
         <option *ngFor="let t of themes" value="{{ t['id'] }}">
@@ -27,10 +27,21 @@
       <input placeholder="Flux" type="text" #typeStreamUrl>
 
       <button type="submit" name="action"
-        (click)="sendNewStream(typeStreamTitle.value, typeStreamUrl.value, selectStreamCateg.value)">Valider
+        (click)="editStream(s.id, typeStreamTitle.value, typeStreamUrl.value, selectStreamCateg.value)">Valider
       </button>
         
-        </form>
+    </form>
 
   </div>
+
+<h4>Supprimer des thèmes ou des categories</h4>
+
+  <div *ngFor="let t of themes; let ind = index">
+
+    <div>{{ t.name }}</div>
+    <div><button (click)="editTheme(ind)">Éditer</button></div>
+    <div><button (click)="deleteTheme(ind)">Supprimer</button></div>         
+    
+  </div>
+
 

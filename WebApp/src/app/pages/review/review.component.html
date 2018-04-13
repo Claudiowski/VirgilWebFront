@@ -1,22 +1,23 @@
 <div id="mySidenav sidenav" [class]="navbarClass">   
     <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
 
-    <p>Thèmes</p>
-    <div *ngFor="let t of themes">
-        <input type="checkbox" id="{{ t.name }}" (click)="addThemeToChosenList(t, $event.srcElement.checked); fetchCategoriesByTheme(t, $event.srcElement.checked)">
-        <label for="{{ t.name }}">{{ t.name }}</label>
-    </div>
-
-    <p>Catégories</p>
-    <div *ngFor="let c of categories">
-        <input type="checkbox" id="{{ c.name }}" (click)="addCategoryToChosenList(c, $event.srcElement.checked)" >
-        <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
+    <div *ngFor="let t of currentThemes">
+        <div>
+            <input type="checkbox" id="{{ t.name }}" name="{{ t.name }}" (click)='checkEntity(t)'>
+            <label for="{{ t.name }}">{{ t.name }}</label>
+        </div>
+        <div *ngIf="t['is_checked']">
+            <div *ngFor="let c of t.categories">
+                <input type="checkbox" id="{{ c.name }}" name="{{ c.name }}" (click)='checkEntity(c)'>
+                <label for="{{ c.name }}">{{ c.name }}</label>
+            </div>
+        </div>
     </div>
 </div>
 
 <span (click)="openNav()">open</span>
 
-<div *ngFor="let f of favorites">
+<div *ngFor="let f of currentFavorites">
     <a href="{{ f.url }}">
         <h3>{{ f.title }}</h3>
     </a>
@@ -24,6 +25,6 @@
         Description : {{ f.description }}
     </div>
     <div>
-        Date : {{ f.date_hour }}
+        Date : {{ f.publication_date }}
     </div>
 </div>

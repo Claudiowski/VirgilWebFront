@@ -1,16 +1,17 @@
 <div id="mySidenav sidenav" [class]="navbarClass">   
         <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
 
-        <p>Thèmes</p>
-        <div *ngFor="let t of themes">
-            <input type="checkbox" id="{{ t.name }}" (click)="click_addThemeToChosenList(t, $event.srcElement.checked); click_fetchCategoriesByTheme(t, $event.srcElement.checked)">
-            <label for="{{ t.name }}">{{ t.name }}</label>
-        </div>
-
-        <p>Catégories</p>
-        <div *ngFor="let c of categories">
-            <input type="checkbox" id="{{ c.name }}" (click)="click_addCategoryToChosenList(c, $event.srcElement.checked)" >
-            <label for="{{ c.name }}">{{ c.name_theme }} - {{ c.name }}</label>
+        <div *ngFor="let t of currentThemes">
+            <div>
+                <input type="checkbox" id="{{ t.name }}" name="{{ t.name }}" (click)='checkEntity(t)'>
+                <label for="{{ t.name }}">{{ t.name }}</label>
+            </div>
+            <div *ngIf="t['is_checked']">
+                <div *ngFor="let c of t.categories">
+                    <input type="checkbox" id="{{ c.name }}" name="{{ c.name }}" (click)='checkEntity(c)'>
+                    <label for="{{ c.name }}">{{ c.name }}</label>
+                </div>
+            </div>
         </div>
 </div>
       
@@ -18,6 +19,6 @@
 <span (click)="openNav()">open</span>
 
 <div id="main">
-    <consult-article *ngFor="let a of articles" [article]="a"></consult-article>
+    <consult-article *ngFor="let a of currentArticles" [article]="a"></consult-article>
     <span *ngIf="errorMessage">{{ errorMessage }}</span>
 </div>

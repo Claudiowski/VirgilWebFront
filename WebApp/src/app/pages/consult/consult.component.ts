@@ -9,122 +9,37 @@ import { ConsultService } from './consult.service'
     templateUrl: 'consult.component.html',
     styleUrls: ['consult.component.css']
 })
-export class ConsultComponent implements OnInit {
+export class ConsultComponent implements OnInit {   
 
-    categories : Object[] = []
-    themes : Object[] = []
-    articles : Object[] = []
+    navbarClass : string = "closedNav"
 
-    defaultStreams : Object[] = []
-    chosenStreams : Object[] = []    
+    currentArticles : Object[] = []
+    currentThemes : Object[] = []
 
-    navbarClass : string = "closedNav" 
-
-    selectedThemes : Object[] = []
-    selectedCategories : Object[] = []
-
-    errorMessage : String
+    themes : Object []
 
     constructor( private _consultService : ConsultService,
                  private route: ActivatedRoute,
                  private router : Router ) { }
     
-    ngOnInit() {
-        this.fetchAllStreams().then(data => { this.fetchArticles(data) },
-                                    error => console.log(error))
-        this.fetchThemes()
+    ngOnInit() { 
+        this._consultService.fetchAllArticles().then(articles => this.currentArticles = this.tryGetCurrentArticles(articles) )
+        this._consultService.fetchAllThemes().then(themes => this.currentThemes = themes )
+        this.checkablesThemesAndCats()
     }
 
-    private fetchAllStreams() {
-        return this._consultService.fetchStreamsByReader()
-                .then(data => {
-                        if (data == null)
-                            this.errorMessage = "Aucun article trouvé !"
-                        else
-                            this.defaultStreams = data
-                        return data
-                })
-    }
+    checkablesThemesAndCats() {
+        for (let i = 0; i < this.currentThemes.length; i++){
+            this.currentThemes[i]['is_checked'] = false
 
-    private fetchThemes() {
-        this._consultService.fetchThemesByReader()
-                .then(data => this.themes = data,
-                     error => this.themes = null )
-    }
-
-    private fetchArticles(streams : Object[]) {
-        if (streams == null)
-            return
-        let articles = []
-        let stream_index = 0
-        this._consultService.fetchAndSortArticles(streams)
-            .subscribe(data => {
-                           for (let i = 0; i < data.length; i++) {
-                               data[i]['stream'] = streams[stream_index]
-                           }
-                           articles = articles.concat(data)
-                           stream_index++
-                       },
-                       error => { },
-                       () => { this.articles = articles.sort(this.sortByPubDate) } )
-    }
-
-    private click_fetchCategoriesByTheme(theme : Object, checkbox_state : boolean) {
-        if (checkbox_state == true) {
-            this._consultService.fetchCategoriesByTheme(theme['id'])
-                .then(data => { this.categories = this.categories.concat(data);
-            console.log(this.categories) }) 
-        } else {
-            this.removeCategoriesByTheme(theme)
-        }
-    }
-
-    private removeCategoriesByTheme(theme) {
-        let c = this.categories
-        let index = 0        
-        for (let i = 0; i < c.length; i++) {
-            if (c[i]['id_theme'] == theme['id']) {
-                index = c.indexOf(c[i])
-                c.splice(index, 1)
+            for (let j = 0; j < this.currentThemes[i]['categories'].length; j++){
+                this.currentThemes[i]['categories'][j]['is_checked'] = false
             }
         }
     }
 
-    private removeSelectedCategoriesByTheme(theme) {
-        let sc = this.selectedCategories
-        let index = 0   
-        for (let i = 0; i < sc.length; i++) {
-            if (sc[i]['id_theme'] == theme['id']) {
-                index = sc.indexOf(sc[i])
-                sc.splice(index, 1)
-            }
-        }
-    }
-
-    private click_addThemeToChosenList(theme, box_checked)  {
-        let index = 0
-        if (box_checked) {
-            this.selectedThemes.push(theme)
-            console.log(this.selectedThemes)
-        } else {
-            let index = this.selectedThemes.indexOf(theme)
-            this.selectedThemes.splice(index, 1)
-            this.removeCategoriesByTheme(theme)
-            this.removeSelectedCategoriesByTheme(theme)           
-        }
-    }
-
-    private click_addCategoryToChosenList(category, box_checked) {
-        if (box_checked) {
-            this.selectedCategories.push(category)
-        } else {
-            let index = this.selectedCategories.indexOf(category)
-            this.selectedCategories.splice(index, 1)
-        }
-    }
-
-    private sortByPubDate(a, b){
-        return new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+    checkEntity(entity : Object) {
+        entity['is_checked'] = !entity['is_checked']
     }
 
     openNav() {    
@@ -133,35 +48,69 @@ export class ConsultComponent implements OnInit {
 
     closeNav() {
         this.navbarClass = "closedNav"
-        this.articles = []
-        this.chosenStreams = []
-        if (this.selectedCategories.length == 0 && this.selectedThemes.length == 0) {
-            this.fetchArticles(this.defaultStreams)             
-        } else {
-            let themes = this.getThemesToFetch()
-            this._consultService.fetchChosenStreams(themes, this.selectedCategories)
-                .subscribe(data => {
-                    this.chosenStreams = this.chosenStreams.concat(data)
-                    this.fetchArticles(this.chosenStreams)
-                })
-            }
+        let selectedThemesAndCats = this.getSelectedThemesAndCats()
+        let localArticles = []
+
+        if (selectedThemesAndCats[0].length > 0 && selectedThemesAndCats[1].length > 0) 
+        {
+            this._consultService.fetchArticlesByThemesAndCats(selectedThemesAndCats[0], selectedThemesAndCats[1])
+                                .subscribe(
+                                articles => 
+                                { 
+                                    if (articles) 
+                                        localArticles = localArticles.concat(articles)
+                                 },
+                                 error => 
+                                 { 
+                                     
+                                 },
+                                 () => 
+                                 {
+                                    this.currentArticles = this.tryGetCurrentArticles(localArticles)
+                                 }
+                                )
+        } 
+        else if (selectedThemesAndCats[0].length > 0) 
+        {
+            this._consultService.fetchArticlesByThemes(selectedThemesAndCats[0])
+                                .then(articles => this.currentArticles = this.tryGetCurrentArticles(articles) )        
+        } 
+        else if (selectedThemesAndCats[1].length > 0) 
+        {
+            this._consultService.fetchArticlesByCategories(selectedThemesAndCats[1])
+                                .then(articles => this.currentArticles = this.tryGetCurrentArticles(articles) )          
+        } 
+        else 
+        {
+            this._consultService.fetchAllArticles().then(articles => this.tryGetCurrentArticles(articles) )            
+        }
     }
 
-    private getThemesToFetch() {
-        const c = this.selectedCategories
-        const t = this.selectedThemes
-        let themes = []        
-        if (c.length == 0) {
-            return t
-        }
-        for (let i = 0; i < t.length; i++) {
-            for (let j = 0; j < c.length; j++) {
-                if (t[i]['id'] == c[j]['id_theme']) 
-                    break
-                if (j+1 == c.length)
-                    themes.push(t[i])
+    tryGetCurrentArticles(articles) {
+        return articles != null ? articles.sort(this.sortByPubDate) : null  
+    }
+
+    getSelectedThemesAndCats() {
+        let selectedThemes = []
+        let selectedCategories = []
+
+        for (let i = 0; i < this.currentThemes.length; i++) {
+            let themeIsAddable = true            
+            let theme = this.currentThemes[i]
+
+            for (let j = 0; j < theme['categories'].length; j++) {
+                if (theme['categories'][j]['is_checked']) {
+                    selectedCategories.push(theme['categories'][j]['id'])
+                    themeIsAddable = false
+                }
             }
+            if (themeIsAddable && theme['is_checked'])
+                selectedThemes.push(theme['id'])        
         }
-        return themes
+        return [selectedThemes, selectedCategories]
+    }
+
+    private sortByPubDate(a : Object[], b : Object[]) : number {
+        return new Date(b['publication_date']).getTime() - new Date(a['publication_date']).getTime()
     }
 }

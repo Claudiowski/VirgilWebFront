@@ -10,21 +10,30 @@ export class ConsultArticleService {
   
     constructor(private http: Http) { }
 
-    public sendArticleToFavorites(article : Object) {
-        console.log(article)
-        let token = sessionStorage.getItem('token')
+    private getIdReader() {
+        return jwt_decode(sessionStorage.getItem('token'))['id']
+    }
+
+    private getToken() {
+        return sessionStorage.getItem('token')
+    }
+
+    private httpPostMethod(url : string, params : Object) {
         let headers = new Headers()
+        headers.append('Authorization', this.getToken())
+        return this.http.post(url, params, new RequestOptions({ headers: headers }))
+                        .toPromise().then(response => { return response.json() })    
+    }
+
+    public sendArticleToFavorites(article : Object) {
         let params = {}
-        let url = 'http://localhost:8080/favorites'
-        headers.append('Authorization', token)
-        params['url'] = '' + article['link']
+        let url = 'http://localhost:8080/api/favorites'
+        params['url'] = '' + article['url']
         params['annotation'] = ''
         params['id_stream'] = article['stream']['id']
         params['title'] = '' + article['title']
         params['description'] = '' + article['description']
-        params['publication_date'], '' + article['pubDate']
-        this.http.post(url, params, new RequestOptions({ headers: headers }))
-                 .toPromise()
-                 .then(response => { return response.json() } )
+        params['publication_date'] = '' + article['publication_date']
+        return this.httpPostMethod(url, params)
     }
 }

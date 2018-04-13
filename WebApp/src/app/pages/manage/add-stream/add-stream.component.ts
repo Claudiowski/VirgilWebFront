@@ -9,8 +9,8 @@ import  { AddStreamService } from './add-stream.service'
 })
 export class AddStreamComponent implements OnInit {
 
-  private categsByTheme
   private themes : Object []
+  private categsByTheme : Object[];
 
   constructor(private _addStreamService : AddStreamService) { }
 
@@ -20,12 +20,7 @@ export class AddStreamComponent implements OnInit {
 
     private initThemes() {
         this._addStreamService.fetchThemes()
-                .then(data => this.themes = data)
-    }
-
-    private initCategsByTheme(id_theme : number) {
-        this._addStreamService.fetchCategories(id_theme)
-                .then(data => this.categsByTheme = data)
+                .then(data => { this.themes = data })
     }
 
     private sendNewStream(title : string, url: string, id_categ : number) {
@@ -38,5 +33,13 @@ export class AddStreamComponent implements OnInit {
 
     private sendNewCateg(categ : string, id_theme : number){
         this._addStreamService.sendNewCateg(categ, id_theme)
+    }
+
+    private choseCategsByTheme(theme_id : number) {
+        for (let i = 0; i < this.themes.length; i++) {
+            if (this.themes[i]['id'] == theme_id) {
+                this.categsByTheme = this.themes[i]['categories']
+            }
+        }
     }
 }

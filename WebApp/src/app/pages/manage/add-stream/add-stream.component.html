@@ -2,7 +2,7 @@
 
     <h4>Ajouter un flux</h4>
 
-    <select placeholder="Thème" (change)="initCategsByTheme(selectStreamTheme.value)" #selectStreamTheme>
+    <select placeholder="Thème" (change)="choseCategsByTheme(selectStreamTheme.value)" #selectStreamTheme>
       <option *ngFor="let t of themes" value="{{ t['id'] }}">{{ t['name'] }}</option>
     </select>
 
@@ -16,7 +16,7 @@
 
     <input placeholder="Flux" type="text" #typeStreamUrl>
 
-    <button type="submit" name="action"
+    <button
       (click)="sendNewStream(typeStreamTitle.value, typeStreamUrl.value, selectStreamCateg.value)">Valider
     </button>
 
@@ -28,7 +28,7 @@
 
     <input placeholder="Thème" type="text" #typeNewTheme>
 
-    <button type="submit" name="action"
+    <button
             (click)="sendNewTheme(typeNewTheme.value)">Valider
     </button>
 
@@ -44,7 +44,7 @@
       <option *ngFor="let t of themes" value="{{ t['id'] }}">{{ t['name'] }}</option>
     </select>
 
-    <button type="submit" name="action"
+    <button
             (click)="sendNewCateg(typeNewCateg.value, selectCategTheme.value)">Valider
     </button>
 

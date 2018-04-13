@@ -8,44 +8,62 @@ export class RemoveStreamService {
 
   constructor(private http : Http) {}
 
-  public fetchStreamsByReader(){
-    let token = sessionStorage.getItem('token')
-    let id_reader = jwt_decode(token)['id']    
+  private getIdReader() {
+    return jwt_decode(sessionStorage.getItem('token'))['id']
+  }
+
+  private getToken() {
+      return sessionStorage.getItem('token')
+  }
+
+  private httpGetMethod(url : string) {
     let headers = new Headers()
-    let url = 'http://localhost:8080/api/reader/' + id_reader + '/streams'
-    headers.append('Authorization', token)
+    headers.append('Authorization', this.getToken())
     return this.http.get(url, new RequestOptions({ headers: headers }))
-            .toPromise()
-            .then(response => { return response.json() })
+                    .toPromise().then(response => { return response.json() })    
+  }
+
+  private httpPutMethod(url : string, params : Object) {
+      let headers = new Headers()
+      headers.append('Authorization', this.getToken())
+      return this.http.put(url, params, new RequestOptions({ headers: headers }))
+                      .toPromise().then(response => { return response.json() })    
+  }
+
+  private httpDeleteMethod(url : string) {
+    let headers = new Headers()
+    headers.append('Authorization', this.getToken())
+    return this.http.delete(url, new RequestOptions({ headers: headers }))
+                    .toPromise().then(response => { return response.json() })    
+  }
+
+  public fetchStreamsByReader(){
+    let url = 'http://localhost:8080/api/reader/' + this.getIdReader() + '/streams'
+    return this.httpGetMethod(url)
   }
 
   public removeStream(id : number) {
-    let token = sessionStorage.getItem('token')
-    let headers = new Headers()
     let url = 'http://localhost:8080/api/streams/' + id
-    headers.append('Authorization', token)
-    return this.http.delete(url, new RequestOptions({ headers: headers }))
-            .toPromise()
-            .then(response => { return response.json() })
+    return this.httpDeleteMethod(url)
   }
 
   public fetchThemes() {
-    let token = sessionStorage.getItem('token')
-    let id_reader = jwt_decode(token)['id']
-    let headers = new Headers()
-    let url = 'http://localhost:8080/api/reader/' + id_reader + '/themes'
-    headers.append('Authorization', token)
-    return this.http.get(url, new RequestOptions({ headers: headers }))
-                    .toPromise()
-                    .then(response => { return response.json() })
-}
+    let url = 'http://localhost:8080/api/reader/' + this.getIdReader() + '/themes'
+    return this.httpGetMethod(url)
+  }
 
-  public fetchCategories(id_theme : number) : Promise<Object[]> {
-    let headers = new Headers()
-    let url = 'http://localhost:8080/api/theme/' + id_theme + '/categories'
-    headers.append('Authorization', sessionStorage.getItem('token'))
-    return this.http.get(url, new RequestOptions({ headers: headers }))
-            .toPromise()
-            .then(response => { return response.json() })
+  public removeTheme(id : number) {
+    let url = 'http://localhost:8080/api/reader/' + id
+    return this.httpDeleteMethod(url)
+  }
+
+
+  public editStream(id : number, title : string, str_url : string, category : number) {
+    let url = 'http//localhost:8080/api/streams/' + id
+    let params = {}
+    if (str_url != null) params['url'] = str_url
+    if (title != null) params['name'] = title
+    if (category != null) params['id_category'] = category
+    return this.httpPutMethod(url, params)
   }
 }
